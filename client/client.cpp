@@ -1,7 +1,6 @@
 #include "initialization.cpp"
 #include "controller.cpp"
 
-
 int main(int argc, const char * argv[])
 {
     if (argc != 3)
