@@ -1,5 +1,5 @@
 client_get /server_image.jpeg 127.0.0.1 8000
-client_get /server_text.txt 127.0.0.1 8000
+client_get /server_text.txt 127.0.0.1 7000
 client_get /ahmed.txt 127.0.0.1 8000
-client_post /client_image.jpg 127.0.0.1 8000
+client_post /client_image.jpg 127.0.0.1 7000
 client_post /client_text.txt 127.0.0.1 8000
