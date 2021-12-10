@@ -10,7 +10,9 @@
 
 int clients = 0;
 mutex mtx;
-
+/*
+* modify recv function to receieve data according to specific time using select function
+*/
 ssize_t recv_for_time(int fd, void* buf, size_t n, int flags)
 {
     fd_set rfds;
@@ -37,6 +39,10 @@ ssize_t recv_for_time(int fd, void* buf, size_t n, int flags)
     return data_size;
 }
 
+/*
+* handle the client post request 
+* recieve client file and save to server files
+*/
 bool handlePost (int socket,request_header req,char *data,int data_size)
 {
     char buffer [BUFFER_SIZE] = {0};
@@ -50,7 +56,6 @@ bool handlePost (int socket,request_header req,char *data,int data_size)
             return false;
         buffer[data_size] = '\0';
         fwrite(&buffer, 1, data_size, fd);
-        //cout << buffer;
         req.content_length -= data_size;
     }
     fclose(fd);
@@ -59,12 +64,16 @@ bool handlePost (int socket,request_header req,char *data,int data_size)
     return true;
 }
 
+/*
+* handle client get request
+* first send the server response to the client 
+* then send the requierd file
+*/
 void handleGET(int socket,string path)
 {
     string absolutePath = files_location +path;
     char buffer [BUFFER_SIZE] = {0};
     int bytes_read;
-    //cout << path << endl;
     string response = "HTTP/1.1 ";
     FILE *fd = fopen(&absolutePath[0], "rb");
     if (fd != NULL)
@@ -86,6 +95,17 @@ void handleGET(int socket,string path)
 
 }
 
+
+/*
+* communicate with client 
+* first receive the client request 
+* print client request
+* if get request call handle_get()
+* else 
+* if content-length = 0 do nothing
+* else wait to receive the file 
+* when time out occurred reduce the number of clients then close the socket
+*/
 void communicate(int socket)
 {
     char buffer [BUFFER_SIZE] = {0};
@@ -110,20 +130,6 @@ void communicate(int socket)
                 start_index = l - start_index + 4;
                 if (!handlePost(socket,req,&buffer[start_index],data_size-start_index))
                     break;
-                /*FILE* fd = fopen(&absolutePath[0], "wb");
-                fwrite(&buffer[start_index],1,data_size - start_index,fd);
-                req.content_length -= (data_size - start_index);
-                while (req.content_length)
-                {
-                    if ((data_size = recv_for_time(socket, buffer, BUFFER_SIZE-1, 0)) <= 0)
-                        break;
-                    buffer[data_size] = '\0';
-                    fwrite(&buffer, 1, data_size, fd);
-                    req.content_length-= data_size;
-                }
-                fclose(fd);
-                string response = "HTTP/1.1 200 OK\r\ncontent-length: 0\r\n\r\n";
-                send(socket, &response[0], response.length(), 0);*/
             }
             else if (req.method == "GET")
             {

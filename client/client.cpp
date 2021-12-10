@@ -1,6 +1,11 @@
 #include "initialization.cpp"
 #include "controller.cpp"
-
+/*
+* create client socket 
+* read client commands
+* connect to required server in the command 
+* handle the command
+*/
 int main(int argc, const char * argv[])
 {
     if (argc != 3)
@@ -13,8 +18,6 @@ int main(int argc, const char * argv[])
         struct sockaddr_in serv_addr;
         struct command_attributes attr;
         string command;
-        /*cout << "Enter file Path : ";
-        cin >> command;*/
         ifstream fileReader("commands.txt");
         string hostName = "";
         int portNumber = 0;
@@ -23,7 +26,6 @@ int main(int argc, const char * argv[])
             attr = getCommand(command);
             cout << attr.method << " " << attr.filePath << " " << attr.hostName << " " << attr.portNumber << endl;
             if ((hostName != attr.hostName)||(portNumber != attr.portNumber)){
-                //cout << "Changed" << endl;
                 close(clientSocket);
                 clientSocket = createSocket(argv[1],atoi(argv[2]));
                 serv_addr = setServer(attr.hostName,attr.portNumber);

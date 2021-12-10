@@ -1,6 +1,13 @@
 #include "controller.cpp"
 #include <thread>
 
+
+/*
+* create a socket to the server 
+* then bind this socket to specified ip and portnumber
+* listen to clients 
+* if client accepted open a new thread to serve the client
+*/
 int main(int argc, const char * argv[])
 {
     if (argc != 2)

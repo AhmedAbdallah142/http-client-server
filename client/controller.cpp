@@ -8,7 +8,11 @@
 string absolutePath;
 
 char buffer [BUFFER_SIZE] = {0};
-
+/*
+* handle the client post request
+* first check if the file not found do nothing
+* else send http request to server then send the required file
+*/
 void sendPostRequest(int socket,string path)
 {
     FILE *fd = fopen(&absolutePath[0], "rb");
@@ -19,6 +23,7 @@ void sendPostRequest(int socket,string path)
     fseek(fd, 0, SEEK_END);
     int fsize = ftell(fd);
     fseek(fd, 0, SEEK_SET);
+    // content-length must be sent to specify the size that the server will receive
     string request = "POST "+ path +" HTTP/1.1\r\ncontent-length: " + to_string(fsize) + "\r\n\r\n";
     send(socket, &request[0], request.length(),0 );
     int bytes_read;
@@ -29,6 +34,12 @@ void sendPostRequest(int socket,string path)
     fclose(fd);
 }
 
+/*
+* recieve the server response then handle it
+* first check the end of the response 
+* if content-length = 0 do nothing
+* else wait to receive the file 
+*/
 void recieveResponse(int socket, string path)
 {
     int start_index = 0 ;
@@ -37,7 +48,6 @@ void recieveResponse(int socket, string path)
     while ((datasize = recv( socket, buffer, BUFFER_SIZE, 0))> 0)
     {
         buffer[datasize] = '\0';
-        //start_index = response.length();
         response += buffer;
         l = response.find("\r\n\r\n");
         if (l != string::npos)
@@ -60,17 +70,6 @@ void recieveResponse(int socket, string path)
                         content_length -= datasize;
                     }
                 }
-                /*while ((datasize = recv(socket, buffer, BUFFER_SIZE-1, 0)) > 0)
-                {
-                    buffer[datasize] = '\0';
-                    //cout << buffer;
-                    if ((buffer[datasize-2] == '\r')&&(buffer[datasize-1] == '\r'))
-                    {
-                        fwrite(&buffer, 1, datasize - 2, fd);
-                        break;
-                    }
-                    fwrite(&buffer, 1, datasize, fd);
-                }*/
                 fclose(fd);
             }
             break;
@@ -80,6 +79,10 @@ void recieveResponse(int socket, string path)
 }
 
 
+/*
+* handle every command in the client commands file 
+* handle client_post & client_get requests only
+*/
 void handleCommand(int socket,string method, string filePath)
 {
     absolutePath = files_location + filePath;

@@ -3,6 +3,10 @@
 
 #include "headers.h"
 
+/*
+* create client socket 
+* then bind this socket to specified ip and portnumber
+*/
 int createSocket(string hostName, int portNumber)
 {
     int clientSocket = 0 ;
@@ -37,6 +41,9 @@ int createSocket(string hostName, int portNumber)
     return clientSocket;
 }
 
+/*
+* define the address of the server to be connected 
+*/
 sockaddr_in setServer(string hostName, int portNumber)
 {
     struct sockaddr_in serv_addr;
@@ -52,12 +59,14 @@ sockaddr_in setServer(string hostName, int portNumber)
 }
 
 
+
+
 void connectWithServer(int clientSocket, sockaddr_in serv_addr)
 {
     if (connect(clientSocket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         perror("\nconnection failed \n");
-        //exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 }
 
